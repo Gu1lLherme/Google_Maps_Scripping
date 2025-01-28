@@ -37,43 +37,53 @@ with open("estabelecimentos.txt", "w", encoding="utf-8") as file:
     for estabelecimento in estabelecimentos:
 
         try:
+            # Clicar no estabelecimento
             estabelecimento.click()
-            time.sleep(8)
+            time.sleep(4)
 
-            ## AGORA COLETA OS DADOS DA NOVA JANELA ABERTA - ENDEREÇO COM CEP PRIORIDADE!!
-            try:
-                # Nome do estabelecimento
-                nome = estabelecimento.find_element(By.CLASS_NAME, "qBF1Pd").text
-            except:
-                nome = "Nome não encontrado"
-            
-            try:
-                # Média de avaliações
-                media_avaliacoes = estabelecimento.find_element(By.XPATH, ".//div[contains(@class, 'F7nice ')]/span/span").text
-            except:
-                media_avaliacoes = "Média de avaliações não disponível"
-            
-            try:
-                # Quantidade de avaliações
-                qtd_avaliacoes = estabelecimento.find_element(By.CLASS_NAME, "UY7F9").text
-            except:
-                qtd_avaliacoes = "Quantidade de avaliações não disponível"
-            
-            try:
-                # Endereço - Pegando o segundo spand do terceiro span da classe W4Efsd 
-                endereco = estabelecimento.find_element(By.XPATH, './/div[contains(@class,"W4Efsd")]/span[3]/span[2]').text
-            except:
-                endereco = "Endereço não disponível"
-            
-            try:
-                # Informações adicionais, como status de funcionamento
-                tipo_estabelecimento = estabelecimento.find_element(By.XPATH, './/div[contains(@class, "W4Efsd")][2]/div[contains(@class,"W4Efsd")]/span/span').text
-            except:
-                tipo_estabelecimento = "Informação adicional não disponível"
-            try:
-                contato = estabelecimento.find_element(By.CLASS_NAME, "UsdlK").text
-            except:
-                contato = "Contato não disponível"
+            # Guarda o conteudo da nova janela 
+            card_elements =  driver.find_elements(By.CLASS_NAME, 'm6QErb')
+
+
+            for elemento in card_elements:
+       
+                ## AGORA COLETA OS DADOS DA NOVA JANELA ABERTA - ENDEREÇO COM CEP PRIORIDADE!!
+                try:
+                    # Nome do estabelecimento
+                    nome = elemento.find_element(By.XPATH, "//h1[@class='DUwDvf lfPIob']").text
+                except:
+                    nome = "Nome não encontrado"
+                
+                try:
+                    # Média de avaliações
+                    media_avaliacoes = elemento.find_element(By.XPATH, "//div[@class='F7nice ']//span[@aria-hidden='true']").text
+                except:
+                    media_avaliacoes = "Média de avaliações não disponível"
+                
+                try:
+                    # Quantidade de avaliações
+                    qtd_avaliacoes = elemento.find_element(By.XPATH, '//div[@class="F7nice "]/span[2]/span').text
+                except:
+                    qtd_avaliacoes = "Quantidade de avaliações não disponível"
+                
+                try:
+                    # Endereço 
+                    endereco = elemento.find_element(By.XPATH, '//div[@class="rogA2c "]/div').text
+                    
+                except:
+                    endereco = "Endereço não disponível"
+                
+                try:
+                    # Informações adicionais, como status de funcionamento
+                    tipo_estabelecimento = estabelecimento.find_element(By.XPATH, '/html/body/div[1]/div[3]/div[8]/div[9]/div/div/div[1]/div[3]/div/div[1]/div/div/div[2]/div[2]/div/div[1]/div[2]/div/div[2]/span[1]/span/button').text
+                except:
+                    tipo_estabelecimento = "Informação adicional não disponível"
+                
+                try:
+                    contato = estabelecimento.find_element(By.XPATH, '/html/body/div[1]/div[3]/div[8]/div[9]/div/div/div[1]/div[3]/div/div[1]/div/div/div[2]/div[9]/div[8]/button/div/div[2]/div[1]').text
+                except:
+                    contato = "Contato não disponível"
+
             # Escrever no arquivo
             file.write(f"Nome: {nome}\n")
             file.write(f"Média de Avaliações: {media_avaliacoes}\n")
@@ -89,15 +99,4 @@ with open("estabelecimentos.txt", "w", encoding="utf-8") as file:
 print("CONSULTA FINALIZADA!!")
 # Fechar o driver
 driver.quit()
-# preciso coletar o CEP
-# Classe de resultados class="m6QErb DxyBCb kA9KIf dS8AEf XiKgde ecceSd" campo 
-# a qual exibe os resultados de estabelecimentos encontrados
 
-# local dos textos class="UaQhfb fontBodyMedium"
-
-# Classe do nome dos Estabelecimentos Titulo class="qBF1Pd fontHeadlineSmall "
-# Classe da Media das avaliações class="MW4etd"
-# Classe quantidade de avaliações class="UY7F9"
-#class="W4Efsd" 
-
-#<div class="W4Efsd"><span><span>Concessionária</span></span><span> <span aria-hidden="true">·</span> <span class="google-symbols" aria-label="Entrada acessível para pessoas em cadeira de rodas" role="img" data-tooltip="Entrada acessível para pessoas em cadeira de rodas" jsaction="focus:pane.focusTooltip; blur:pane.blurTooltip" style="font-size: 15px;"><span class="doJOZc"></span></span></span><span> <span aria-hidden="true">·</span> <span>Av. Maranhão, 12</span></span></div>

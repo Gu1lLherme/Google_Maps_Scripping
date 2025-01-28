@@ -1,35 +1,35 @@
-Nome: Nome não encontrado
-Média de Avaliações: Média de avaliações não disponível
-Quantidade de Avaliações: Quantidade de avaliações não disponível
-Endereço: Endereço não disponível
-Informações Adicionais: Informação adicional não disponível
+Nome: Sergipe Veiculos
+Média de Avaliações: 4,6
+Quantidade de Avaliações: (34)
+Endereço: Av. Pedro Calazans, 922 - Centro, Aracaju - SE, 49055-520
+Informações Adicionais: Revendedora de carros usados
+Contato: (79) 3304-4956
+--------------------------------------------------
+Nome: Netto Veículos - O diferenciado- Carros seminovos em Aracaju
+Média de Avaliações: 4,9
+Quantidade de Avaliações: (247)
+Endereço: Av. Maranhão, 12 - Santo Antônio, Aracaju - SE, 49060-400
+Informações Adicionais: Concessionária
 Contato: Contato não disponível
 --------------------------------------------------
-Nome: Nome não encontrado
-Média de Avaliações: Média de avaliações não disponível
-Quantidade de Avaliações: Quantidade de avaliações não disponível
-Endereço: Endereço não disponível
-Informações Adicionais: Informação adicional não disponível
-Contato: Contato não disponível
+Nome: Chevrolet Contorno Aracaju
+Média de Avaliações: 4,4
+Quantidade de Avaliações: (1.395)
+Endereço: Av. Pres. Tancredo Neves, 1550 - Jardins, Aracaju - SE, 49025-620
+Informações Adicionais: Concessionária Chevrolet
+Contato: (79) 2107-9400
 --------------------------------------------------
-Nome: Nome não encontrado
-Média de Avaliações: Média de avaliações não disponível
-Quantidade de Avaliações: Quantidade de avaliações não disponível
-Endereço: Endereço não disponível
-Informações Adicionais: Informação adicional não disponível
-Contato: Contato não disponível
+Nome: Gordinho Automóveis Aracaju-SE
+Média de Avaliações: 4,8
+Quantidade de Avaliações: (76)
+Endereço: Av. Carlos Burlamarqui, 785 - Getúlio Vargas, Aracaju - SE, 49055-150
+Informações Adicionais: Revendedora de carros usados
+Contato: 3WVR+8F Getúlio Vargas, Aracaju - SE
 --------------------------------------------------
-Nome: Nome não encontrado
-Média de Avaliações: Média de avaliações não disponível
-Quantidade de Avaliações: Quantidade de avaliações não disponível
-Endereço: Endereço não disponível
-Informações Adicionais: Informação adicional não disponível
-Contato: Contato não disponível
---------------------------------------------------
-Nome: Nome não encontrado
-Média de Avaliações: Média de avaliações não disponível
-Quantidade de Avaliações: Quantidade de avaliações não disponível
-Endereço: Endereço não disponível
-Informações Adicionais: Informação adicional não disponível
+Nome: Matos Veículos
+Média de Avaliações: 4,8
+Quantidade de Avaliações: (42)
+Endereço: Av. João Ribeiro, 537 - Santo Antônio, Aracaju - SE, 49060-330
+Informações Adicionais: Revendedora de carros usados
 Contato: Contato não disponível
 --------------------------------------------------
