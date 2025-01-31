@@ -18,7 +18,8 @@ Para iniciar o projeto, siga os passos abaixo para baixar e instalar todas as de
     ```
 3. Instale as dependências:
     ```bash
-    npm install
+    pip install -r requirements.txt
+
     ```
 
 ## Inicialização do Algoritmo
@@ -26,7 +27,7 @@ Para iniciar o projeto, siga os passos abaixo para baixar e instalar todas as de
 Após a instalação das dependências, você pode inicializar o algoritmo com o seguinte comando:
 
 ```bash
-npm start
+python main.py
 ```
 
 ## Funcionalidades
