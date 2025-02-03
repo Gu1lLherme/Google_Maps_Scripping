@@ -1,4 +1,5 @@
 import pandas as pd
+import re
 import time
 import logging
 from selenium import webdriver
@@ -12,7 +13,8 @@ from selenium.webdriver.common.action_chains import ActionChains
 logging.basicConfig(
     filename="scraping.log", level=logging.ERROR, format="%(asctime)s - %(message)s"
 )
-
+# Inicio do time 
+inicio = time.time()
 # ==================== INICIO DO ALGORTIMO ====================
 
 # = ==== = Definição de estabelecimento e localização = = ==== =
@@ -21,14 +23,14 @@ pesquisa = "Veiculos em Aracaju, SE"
 # Inicializa o WebDriver
 
 options = webdriver.ChromeOptions()
-# options.add_argument("--headless")  # Para rodar em background
+options.add_argument("--headless")  # Para rodar em background
 driver = webdriver.Chrome(options=options)
 
 try:
     # Acessa o Google Maps
     driver.get("https://www.google.com/maps/")
     assert "Google Maps" in driver.title
-
+    print("Google Maps acessado com sucesso!")
     # Encontra a caixa de pesquisa e digita o termo
     search_box = driver.find_element(By.ID, "searchboxinput")
     search_box.send_keys(pesquisa)
@@ -52,7 +54,7 @@ try:
             return new Promise((resolve, reject) => {
                 var totalHeight = 0;
                 var distance = 1000;
-                var scrollDelay = 3000;
+                var scrollDelay = 10000;
                 
                 var timer = setInterval(() => {
                     var scrollHeightBefore = scrollableDiv.scrollHeight;
@@ -87,82 +89,101 @@ try:
 
     # Iterar sobre os resultados e coletar as informações desejadas
     for index, estabelecimento in enumerate(estabelecimentos):
-        try:
-            # Certificar que o elemento está visível antes de clicar
-            WebDriverWait(driver, 20).until(EC.element_to_be_clickable(estabelecimento))
-
-            # Move para o elemento antes de clicar
-            actions = ActionChains(driver)
-            actions.move_to_element(estabelecimento).perform()
-            estabelecimento.click()
-            time.sleep(3)  # Espera para carregar os detalhes
-
-            # Espera o sidebar abrir
-            sidebar = WebDriverWait(driver, 20).until(
-                EC.presence_of_element_located((By.CLASS_NAME, "m6QErb"))
-            )
-
-            # Coleta de Dados
+        
+        if int(len(estabelecimentos)) > 110:
+            
             try:
-                nome = driver.find_element(
-                    By.XPATH, "//h1[@class='DUwDvf lfPIob']"
-                ).text
-            except:
-                nome = "Nome não encontrado"
-
-            try:
-                media_avaliacoes = driver.find_element(
-                    By.XPATH, "//div[@class='F7nice ']//span[@aria-hidden='true']"
-                ).text
-            except:
-                media_avaliacoes = "Média de avaliações não disponível"
-
-            try:
-                qtd_avaliacoes = driver.find_element(
-                    By.XPATH, '//div[@class="F7nice "]/span[2]/span'
-                ).text
-            except:
-                qtd_avaliacoes = "Quantidade de avaliações não disponível"
-
-            try:
-                endereco = driver.find_element(
-                    By.XPATH, '//div[@class="rogA2c "]/div'
-                ).text
-            except:
-                endereco = "Endereço não disponível"
-
-            try:
-                tipo_estabelecimento = driver.find_element(
-                    By.XPATH,
-                    "/html/body/div[1]/div[3]/div[8]/div[9]/div/div/div[1]/div[3]/div/div[1]/div/div/div[2]/div[2]/div/div[1]/div[2]/div/div[2]/span[1]/span",
-                ).text
-            except:
-                tipo_estabelecimento = "Informação adicional não disponível"
-            try:
-                contato = driver.find_element(
-                    By.XPATH,
-                    "/html/body/div[1]/div[3]/div[8]/div[9]/div/div/div[1]/div[3]/div/div[1]/div/div/div[2]/div[9]/div[7]/button/div/div[2]/div[1]",
-                ).text
-            except:
-                contato = "Contato não disponível"
+                print(f"Coletando dados do item {index + 1} de {len(estabelecimentos)}...")
                 
-            # Adicionar os dados à lista
-            dados.append(
-                [
-                    nome,
-                    media_avaliacoes,
-                    qtd_avaliacoes,
-                    endereco,
-                    tipo_estabelecimento,
-                    contato                   
-                ]
-            )
+                # Certificar que o elemento está visível antes de clicar
+                WebDriverWait(driver, 20).until(EC.element_to_be_clickable(estabelecimento))
+                
+                # Rola a tela até o elemento usando JavaScript
+                driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", estabelecimento)
+                time.sleep(1)  # Pequena pausa para garantir visibilidade
 
-        except Exception as e:
-            logging.error(f"Erro no item {index}: {str(e)}")
-            continue
-    
-    
+                # Move para o elemento antes de clicar
+                actions = ActionChains(driver)
+                actions.move_to_element(estabelecimento).perform()
+                estabelecimento.click()
+                time.sleep(5)  # Espera para carregar os detalhes
+
+                # Espera o sidebar abrir
+                WebDriverWait(driver, 20).until(
+                    EC.presence_of_element_located((By.CLASS_NAME, "m6QErb"))
+                )
+
+                # Coleta de Dados
+                try:
+                    nome = driver.find_element(
+                        By.XPATH, "//h1[@class='DUwDvf lfPIob']"
+                    ).text
+                except:
+                    nome = "Nome não encontrado"
+
+                try:
+                    media_avaliacoes = driver.find_element(
+                        By.XPATH, "//div[@class='F7nice ']//span[@aria-hidden='true']"
+                    ).text
+                except:
+                    media_avaliacoes = "Média de avaliações não disponível"
+
+                try:
+                    qtd_avaliacoes = driver.find_element(
+                        By.XPATH, '//div[@class="F7nice "]/span[2]/span'
+                    ).text
+                except:
+                    qtd_avaliacoes = "Quantidade de avaliações não disponível"
+
+                try:
+                    endereco = driver.find_element(
+                        By.XPATH, '//div[@class="rogA2c "]/div'
+                    ).text
+                except:
+                    endereco = "Endereço não disponível"
+
+                try:
+                    tipo_estabelecimento = driver.find_element(
+                        By.XPATH,
+                        "/html/body/div[1]/div[3]/div[8]/div[9]/div/div/div[1]/div[3]/div/div[1]/div/div/div[2]/div[2]/div/div[1]/div[2]/div/div[2]/span[1]/span",
+                    ).text
+                except:
+                    tipo_estabelecimento = "Informação adicional não disponível"
+
+                try:
+                    # Coleta todos os elementos com a classe do telefone/endereço
+                    divs = driver.find_elements(By.CLASS_NAME, "Io6YTe")
+
+                    contato = "Contato não disponível"
+
+                    # Percorre os elementos e verifica qual contém um telefone
+                    for div in divs:
+                        texto = div.text
+                        if re.search(r'\(\d{2}\) \d{4,5}-\d{4}', texto):  # Verifica se tem um telefone válido
+                            contato = texto
+                            break  # Para no primeiro telefone encontrado
+
+                except Exception as e:
+                    contato = "Erro ao coletar telefone"
+                    
+                # Adicionar os dados à lista
+                dados.append(
+                    [
+                        nome,
+                        media_avaliacoes,
+                        qtd_avaliacoes,
+                        endereco,
+                        tipo_estabelecimento,
+                        contato                   
+                    ]
+                )
+
+            except Exception as e:
+                logging.error(f"Erro no item {index}: {str(e)}")
+                continue
+        else:        
+            driver.quit()
+            
     # = == = DADOS SALVOS  = == =
     # Cria o DataFrame com os dados coletados
     df = pd.DataFrame(
@@ -188,11 +209,14 @@ try:
         index=False,
     )"""
     df.to_csv(
-        "C:\\Users\\gesbarreto\\Downloads\\SCRIPPING\\Resultados\\estabelecimentos.csv",
+        f"C:\\Users\\gesbarreto\\Downloads\\SCRIPPING\\Resultados\\estabelecimentos_{pesquisa}.csv",
         index=False,
     )
 
     print("Dados salvos com sucesso em CSV e XLSX!")
-
+    
 finally:
     driver.quit()
+    fim = time.time()
+    tempo_total = fim - inicio
+    print(f"Tempo total de extração: {tempo_total:.2f} segundos")
