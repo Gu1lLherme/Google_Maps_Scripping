@@ -1,4 +1,5 @@
 import pandas as pd
+import os
 import re
 import time
 import logging
@@ -9,17 +10,43 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.action_chains import ActionChains
 
+# ==================== LOGS DE ERRO ====================
+
+# Criar diretório 'logs' se não existir
+log_dir = "C:\\Users\\gesbarreto\\Downloads\\SmartSniffer\\main\\logs"
+os.makedirs(log_dir, exist_ok=True)
+
+# Caminho completo do arquivo de log
+log_file = os.path.join(log_dir, "smartSniffer.log")
+
 # Configuração do logging
 logging.basicConfig(
-    filename="scraping.log", level=logging.ERROR, format="%(asctime)s - %(message)s"
+    filename= log_file,
+    level=logging.ERROR, 
+    format="%(asctime)s - %(message)s"
 )
+
 # Inicio do time 
 inicio = time.time()
+
 # ==================== INICIO DO ALGORTIMO ====================
 
 # = ==== = Definição de estabelecimento e localização = = ==== =
-pesquisa = "Veiculos em Aracaju, SE"
-
+try:
+    print("===" * 10 + " SCRAPPING GOOGLE MAPS " + "===" *  10)
+    print("Digite o tipo de estabelecimento e a localização para pesquisar no Google Maps.")
+    
+    entrada_tipo_estabelecimento = str(input("Tipo de estabelecimento a ser pesquisado: "))
+    localizacao = str(input("Localização: "))
+    qtd_minima_estabelencimentos = int(input("Quantidade Minima de Estabelecimentos: "))
+    pesquisa = f"{entrada_tipo_estabelecimento} em {localizacao}"
+    
+    print("===" * 25)
+except:
+    print("Erro ao definir a pesquisa. Tente novamente.")
+    exit()
+    
+    
 # Inicializa o WebDriver
 
 options = webdriver.ChromeOptions()
@@ -30,11 +57,12 @@ try:
     # Acessa o Google Maps
     driver.get("https://www.google.com/maps/")
     assert "Google Maps" in driver.title
+    
     print("Google Maps acessado com sucesso!")
+    
     # Encontra a caixa de pesquisa e digita o termo
     search_box = driver.find_element(By.ID, "searchboxinput")
-    search_box.send_keys(pesquisa)
-    search_box.send_keys(Keys.RETURN)
+    search_box.send_keys(pesquisa, Keys.RETURN)
 
     # Maximiza a janela
     driver.maximize_window()
@@ -54,7 +82,7 @@ try:
             return new Promise((resolve, reject) => {
                 var totalHeight = 0;
                 var distance = 1000;
-                var scrollDelay = 10000;
+                var scrollDelay = 6000;
                 
                 var timer = setInterval(() => {
                     var scrollHeightBefore = scrollableDiv.scrollHeight;
@@ -87,11 +115,19 @@ try:
     # Localizar todos os resultados dos estabelecimentos
     estabelecimentos = driver.find_elements(By.CLASS_NAME, "hfpxzc")
 
-    # Iterar sobre os resultados e coletar as informações desejadas
-    for index, estabelecimento in enumerate(estabelecimentos):
-        
-        if int(len(estabelecimentos)) > 110:
-            
+    # Limita a coleta a no máximo 5 estabelecimentos
+    estabelecimentos = estabelecimentos[:5]
+    
+
+    print(f"Encontrados {len(estabelecimentos)} estabelecimentos.")
+    print("===" * 25)
+    
+    # Verifica se a quantidade de estabelecimentos é maior que a 
+    # quantidade mínima para realizar a coleta dos dados
+    if int(len(estabelecimentos)) > qtd_minima_estabelencimentos:
+       
+        # Iterar sobre os resultados e coletar as informações desejadas
+        for index, estabelecimento in enumerate(estabelecimentos):    
             try:
                 print(f"Coletando dados do item {index + 1} de {len(estabelecimentos)}...")
                 
@@ -181,10 +217,39 @@ try:
             except Exception as e:
                 logging.error(f"Erro no item {index}: {str(e)}")
                 continue
-        else:        
-            driver.quit()
+    else:        
+        driver.quit()
             
-    # = == = DADOS SALVOS  = == =
+    # ==================== SAVE DATA ====================
+    # Função para extrair partes do endereço
+    def extrair_endereco(endereco):
+        
+        # Extrai logradouro, número, bairro e CEP do endereço completo.
+      
+        logradouro, numero, bairro, cep = "", "", "", ""
+
+        # Expressões regulares para capturar cada parte
+        padrao_logradouro = r"^([^,]+),?\s?(\d+)?"
+        padrao_bairro = r"\d+\s*-\s*(.*?)\s*-\s*SE"
+        padrao_cep = r"\b\d{5}-\d{3}\b"
+        
+        # Busca cada parte no endereço
+        logradouro_match = re.search(padrao_logradouro, endereco)
+        bairro_match = re.search(padrao_bairro, endereco)
+        cep_match = re.search(padrao_cep, endereco)
+        
+        if logradouro_match:
+            logradouro = logradouro_match.group(1).strip()
+            numero = logradouro_match.group(2) if logradouro_match.group(2) else ""
+
+        if bairro_match:
+            bairro = bairro_match.group(1).strip()
+
+        if cep_match:
+            cep = cep_match.group(0).strip()
+
+        return logradouro, numero, bairro, cep
+    
     # Cria o DataFrame com os dados coletados
     df = pd.DataFrame(
         dados,
@@ -192,30 +257,36 @@ try:
             "NOME DO ESTABELECIMENTO",
             "MED.AVALIACOES",
             "QNT.AVALIACOES",
-            "ENDERECO COM CEP",
-            "INF.ADICIONAIS", 
-            "CONTATO"
+            "ENDERECO COMPLETO",
+            "TIPO DE ESTABELECIMENTO", 
+            "CONTATO DO ESTABELECIMENTO"
         ],
     )
-
-    # Tratamento de dados
-    df["NOME DO ESTABELECIMENTO"] = df["NOME DO ESTABELECIMENTO"].str.upper()
-    df["ENDERECO COM CEP"] = df["ENDERECO COM CEP"].str.upper()
-
+       
+    # Tratamento de dados - Converte todas as colunas de texto para maiúsculas
+    colunas_para_maiusculas = ["NOME DO ESTABELECIMENTO", "ENDERECO COMPLETO", "TIPO DE ESTABELECIMENTO"]
+    df[colunas_para_maiusculas] = df[colunas_para_maiusculas].fillna("").apply(lambda x: x.str.upper())
+    # Remover as duplicatas existentes no Data Frame 
     df = df.drop_duplicates()
+    
+    # Aplicar a função em cada linha do DataFrame
+    df[["LOGRADOURO", "NUMERO", "BAIRRO", "CEP"]] = df["ENDERECO COMPLETO"].apply(
+        lambda x: pd.Series(extrair_endereco(x)))
+    
     # Salvar o DataFrame em um arquivo .xlsx e .csv
     """df.to_excel(
-        "C:\\Users\\gesbarreto\\Downloads\\SCRIPPING\\Resultados\\estabelecimentos.xlsx",
+        f"C:\\Users\\gesbarreto\\Downloads\\SCRIPPING\\Resultados\\estabelecimentos_{pesquisa}.xlsx",
         index=False,
     )"""
     df.to_csv(
-        f"C:\\Users\\gesbarreto\\Downloads\\SCRIPPING\\Resultados\\estabelecimentos_{pesquisa}.csv",
-        index=False,
+        f"C:\\Users\\gesbarreto\Downloads\\SmartSniffer\\main\\resultados\\estabelecimentos_{pesquisa}.csv",
+        index=False
     )
 
     print("Dados salvos com sucesso em CSV e XLSX!")
     
 finally:
+    # ==================== FIM DO ALGORTIMO ====================
     driver.quit()
     fim = time.time()
     tempo_total = fim - inicio

@@ -1,10 +1,66 @@
-# SCRIPPING
+#  Web Scrapping - SmartSniffer
 
-## Descrição do Projeto
+O projeto **Smart Sniffer** é uma ferramenta desenvolvida para realizar a raspagem de informações de estabelecimentos existentes no **Google Maps**. 
+Através de um script personalizado, a ferramenta extrai dados do Google Maps, trata as informações obtidas e as armazena em um **DataFrame** para melhor visualização e análise.
 
-O projeto SCRIPPING é uma ferramenta desenvolvida para automatizar tarefas específicas através de scripts personalizados. Este README fornece instruções detalhadas sobre como configurar o ambiente, instalar as dependências necessárias, executar o algoritmo e entender as funcionalidades e resultados obtidos.
+## Funcionalidades do Script
 
-## Instalação de Dependências
+O script realiza a **extração automatizada de dados** de estabelecimentos no Google Maps com base nos parâmetros fornecidos pelo usuário, como tipo de estabelecimento e localização. Ele coleta os seguintes dados de cada estabelecimento:
+
+1. **Nome do Estabelecimento**
+2. **Endereço completo com CEP**
+3. **Total de Avaliações**
+4. **Média de Avaliações**
+5. **Tipo de Estabelecimento**
+6. **Contato do Estabelecimento**
+
+Após coletar os dados, o script trata os dados coletados removendo duplicatas e espaços desnecessarios, armazena as informações em um **DataFrame** e salva em formatos **CSV** e **XLSX** para fácil análise posterior.
+
+## Passos para Execução
+
+1. **Definir parâmetros**: O usuário precisa inserir o tipo de estabelecimento (por exemplo, "Restaurante", "Loja") e a localização (por exemplo, "São Paulo"), além de definir a quantidade mínima de estabelecimentos a serem coletados.
+   
+2. **Processamento**: O script realiza a pesquisa no Google Maps e coleta as informações de cada estabelecimento que aparece nos resultados. Durante a coleta, o script utiliza **Selenium** para simular a navegação, realizar o scroll da página e acessar as informações de cada estabelecimento de forma dinâmica.
+
+3. **Tratamento de Dados**: As informações extraídas são tratadas para garantir a uniformidade dos dados, como a formatação de nomes e endereços em maiúsculas.
+
+4. **Armazenamento**: O DataFrame gerado é salvo em arquivos **CSV** e **XLSX** para facilitar a consulta e o uso posterior.
+
+## Detalhes Técnicos do Script
+
+O script utiliza a biblioteca **Selenium** para realizar a raspagem das informações diretamente no Google Maps. A seguir, estão as etapas principais do script:
+
+- **Abertura do Google Maps**: O script inicia acessando a página do Google Maps.
+- **Pesquisa e Scroll**: Realiza a busca pelo tipo de estabelecimento e localização fornecidos, e executa o scroll para carregar todos os resultados.
+- **Coleta dos Dados**: Para cada estabelecimento encontrado, o script coleta informações como nome, avaliação, tipo, endereço e telefone.
+- **Armazenamento em DataFrame**: Os dados são armazenados em um **DataFrame** do **Pandas** e salvos em arquivos **CSV** e **XLSX**.
+
+## Exemplo de Saída
+
+Os dados extraídos de cada estabelecimento serão organizados nas seguintes colunas:
+
+- **NOME DO ESTABELECIMENTO**
+- **MÉDIA DE AVALIAÇÕES**
+- **QUANTIDADE DE AVALIAÇÕES**
+- **TIPO DE ESTABELECIMENTO**
+- **CONTATO DO ESTABELECIMENTO**
+- **ENDEREÇO COMPLETO**
+- **LOGRADOURO**
+- **NUMERO**
+- **BAIRRO**
+- **CEP**
+
+
+Além disso, o script possui um mecanismo de **log** para registrar possíveis erros durante o processo de raspagem.
+
+## Requisitos
+
+- Python 3.x
+- Selenium
+- Pandas
+- WebDriver do Chrome (ChromeDriver)
+
+## Instalação de Dependências/Requisitos
 
 Para iniciar o projeto, siga os passos abaixo para baixar e instalar todas as dependências necessárias:
 
@@ -19,7 +75,6 @@ Para iniciar o projeto, siga os passos abaixo para baixar e instalar todas as de
 3. Instale as dependências:
     ```bash
     pip install -r requirements.txt
-
     ```
 
 ## Inicialização do Algoritmo
@@ -27,26 +82,8 @@ Para iniciar o projeto, siga os passos abaixo para baixar e instalar todas as de
 Após a instalação das dependências, você pode inicializar o algoritmo com o seguinte comando:
 
 ```bash
-python main.py
+python main/main.py
 ```
-
-## Funcionalidades
-
-O projeto SCRIPPING oferece as seguintes funcionalidades:
-
-- **Automatização de Tarefas**: Scripts personalizados para automatizar tarefas repetitivas.
-- **Análise de Dados**: Ferramentas para coleta e análise de dados.
-- **Geração de Relatórios**: Criação de relatórios detalhados com base nos dados analisados.
-- **Integração com APIs**: Conexão com diversas APIs para expandir as capacidades do script.
-
-## Resultados Obtidos
-
-Os resultados obtidos com o uso do SCRIPPING incluem:
-
-- **Eficiência**: Redução significativa do tempo gasto em tarefas manuais.
-- **Precisão**: Aumento da precisão nas tarefas realizadas, minimizando erros humanos.
-- **Insights**: Geração de insights valiosos através da análise de dados automatizada.
-- **Escalabilidade**: Capacidade de escalar operações sem aumento proporcional de esforço manual.
 
 ## Contribuição
 
