@@ -72,7 +72,15 @@ Para iniciar o projeto, siga os passos abaixo para baixar e instalar todas as de
     ```bash
     cd scripping
     ```
-3. Instale as dependências:
+3. Crie um Ambiente Virtual
+    '''bash
+    python -m venv .venv
+    '''
+4. Ative o Ambiente Virtual 
+    '''bash
+    .\.venv\Scripts\Activate.ps1
+    '''
+5. Instale as dependências:
     ```bash
     pip install -r requirements.txt
     ```
