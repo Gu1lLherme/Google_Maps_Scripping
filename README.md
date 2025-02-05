@@ -90,7 +90,7 @@ Para iniciar o projeto, siga os passos abaixo para baixar e instalar todas as de
 Após a instalação das dependências, você pode inicializar o algoritmo com o seguinte comando:
 
 ```bash
-python main/main.py
+python main.py
 ```
 
 ## Contribuição

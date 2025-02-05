@@ -82,7 +82,7 @@ try:
             return new Promise((resolve, reject) => {
                 var totalHeight = 0;
                 var distance = 1000;
-                var scrollDelay = 6000;
+                var scrollDelay = 4500;
                 
                 var timer = setInterval(() => {
                     var scrollHeightBefore = scrollableDiv.scrollHeight;
@@ -116,7 +116,7 @@ try:
     estabelecimentos = driver.find_elements(By.CLASS_NAME, "hfpxzc")
 
     # Limita a coleta a no máximo 5 estabelecimentos
-    estabelecimentos = estabelecimentos[:5]
+    # estabelecimentos = estabelecimentos[:5]
     
 
     print(f"Encontrados {len(estabelecimentos)} estabelecimentos.")
@@ -142,7 +142,7 @@ try:
                 actions = ActionChains(driver)
                 actions.move_to_element(estabelecimento).perform()
                 estabelecimento.click()
-                time.sleep(5)  # Espera para carregar os detalhes
+                time.sleep(4)  # Espera para carregar os detalhes
 
                 # Espera o sidebar abrir
                 WebDriverWait(driver, 20).until(
@@ -223,33 +223,41 @@ try:
     # ==================== SAVE DATA ====================
     # Função para extrair partes do endereço
     def extrair_endereco(endereco):
-        
-        # Extrai logradouro, número, bairro e CEP do endereço completo.
-      
+        # Inicializa as variáveis
         logradouro, numero, bairro, cep = "", "", "", ""
-
-        # Expressões regulares para capturar cada parte
-        padrao_logradouro = r"^([^,]+),?\s?(\d+)?"
-        padrao_bairro = r"\d+\s*-\s*(.*?)\s*-\s*SE"
+        
+        # Padrão para logradouro: captura tudo antes da primeira vírgula
+        padrao_logradouro = r"^([^,]+),"
+        
+        # Padrão para número: captura tudo entre a vírgula e o primeiro hífen (números, letras e espaços)
+        padrao_numero = r",\s*([0-9A-Za-z\s]+?)\s*-"
+        
+        # Padrão para bairro: captura o texto que aparece após o hífen e antes da vírgula que antecede "ARACAJU"
+        padrao_bairro = r"-\s*([^,-]+),\s*ARACAJU\s*- SE"
+        
+        # Padrão para CEP (formato 00000-000)
         padrao_cep = r"\b\d{5}-\d{3}\b"
         
         # Busca cada parte no endereço
         logradouro_match = re.search(padrao_logradouro, endereco)
+        numero_match = re.search(padrao_numero, endereco)
         bairro_match = re.search(padrao_bairro, endereco)
         cep_match = re.search(padrao_cep, endereco)
         
         if logradouro_match:
             logradouro = logradouro_match.group(1).strip()
-            numero = logradouro_match.group(2) if logradouro_match.group(2) else ""
-
+        
+        if numero_match:
+            numero = numero_match.group(1).strip()
+        
         if bairro_match:
             bairro = bairro_match.group(1).strip()
-
+        
         if cep_match:
             cep = cep_match.group(0).strip()
-
+        
         return logradouro, numero, bairro, cep
-    
+
     # Cria o DataFrame com os dados coletados
     df = pd.DataFrame(
         dados,
@@ -262,7 +270,6 @@ try:
             "CONTATO DO ESTABELECIMENTO"
         ],
     )
-       
     # Tratamento de dados - Converte todas as colunas de texto para maiúsculas
     colunas_para_maiusculas = ["NOME DO ESTABELECIMENTO", "ENDERECO COMPLETO", "TIPO DE ESTABELECIMENTO"]
     df[colunas_para_maiusculas] = df[colunas_para_maiusculas].fillna("").apply(lambda x: x.str.upper())
@@ -275,19 +282,22 @@ try:
     
     # Salvar o DataFrame em um arquivo .xlsx e .csv
     """df.to_excel(
-        f"C:\\Users\\gesbarreto\Downloads\\SmartSniffer\\src\\resultados\\estabelecimentos_{pesquisa}.xlsx",
+        f"C:\\Users\\gesbarreto\Downloads\\SmartSniffer\\src\\resultados\\XLSX\\estabelecimentos_{pesquisa}.xlsx",
         index=False,
     )"""
+    
     df.to_csv(
-        f"C:\\Users\\gesbarreto\Downloads\\SmartSniffer\\src\\resultados\\estabelecimentos_{pesquisa}.csv",
+        f"C:\\Users\\gesbarreto\\Downloads\\SmartSniffer\\src\\resultados\\CSV\\estabelecimentos_{pesquisa}.csv",
         index=False
     )
 
     print("Dados salvos com sucesso em CSV e XLSX!")
-    
+except Exception as e:
+    print(f"Erro ao coletar dados: {str(e)}")
+
 finally:
     # ==================== FIM DO ALGORTIMO ====================
     driver.quit()
     fim = time.time()
-    tempo_total = fim - inicio
-    print(f"Tempo total de extração: {tempo_total:.2f} segundos")
+    tempo_total = ((fim - inicio) / 60) # Tempo total de execução
+    print(f"Tempo total de extração: {tempo_total:.0f} minutos")
