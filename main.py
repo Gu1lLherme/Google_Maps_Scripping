@@ -3,6 +3,7 @@ import os
 import re
 import time
 import logging
+from src.tratamentoDados import create_data_frame, dados_format, extrair_endereco, save_data
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
@@ -116,11 +117,11 @@ try:
     estabelecimentos = driver.find_elements(By.CLASS_NAME, "hfpxzc")
 
     # Limita a coleta a no máximo 5 estabelecimentos
-    # estabelecimentos = estabelecimentos[:5]
+    estabelecimentos = estabelecimentos[:5]
     
 
     print(f"Encontrados {len(estabelecimentos)} estabelecimentos.")
-    print("===" * 25)
+    print("===" * 30)
     
     # Verifica se a quantidade de estabelecimentos é maior que a 
     # quantidade mínima para realizar a coleta dos dados
@@ -208,9 +209,9 @@ try:
                         nome,
                         media_avaliacoes,
                         qtd_avaliacoes,
-                        endereco,
                         tipo_estabelecimento,
-                        contato                   
+                        contato,
+                        endereco                   
                     ]
                 )
 
@@ -219,79 +220,20 @@ try:
                 continue
     else:        
         driver.quit()
-            
-    # ==================== SAVE DATA ====================
-    # Função para extrair partes do endereço
-    def extrair_endereco(endereco):
-        # Inicializa as variáveis
-        logradouro, numero, bairro, cep = "", "", "", ""
-        
-        # Padrão para logradouro: captura tudo antes da primeira vírgula
-        padrao_logradouro = r"^([^,]+),"
-        
-        # Padrão para número: captura tudo entre a vírgula e o primeiro hífen (números, letras e espaços)
-        padrao_numero = r",\s*([0-9A-Za-z\s]+?)\s*-"
-        
-        # Padrão para bairro: captura o texto que aparece após o hífen e antes da vírgula que antecede "ARACAJU"
-        padrao_bairro = r"-\s*([^,-]+),\s*ARACAJU\s*- SE"
-        
-        # Padrão para CEP (formato 00000-000)
-        padrao_cep = r"\b\d{5}-\d{3}\b"
-        
-        # Busca cada parte no endereço
-        logradouro_match = re.search(padrao_logradouro, endereco)
-        numero_match = re.search(padrao_numero, endereco)
-        bairro_match = re.search(padrao_bairro, endereco)
-        cep_match = re.search(padrao_cep, endereco)
-        
-        if logradouro_match:
-            logradouro = logradouro_match.group(1).strip()
-        
-        if numero_match:
-            numero = numero_match.group(1).strip()
-        
-        if bairro_match:
-            bairro = bairro_match.group(1).strip()
-        
-        if cep_match:
-            cep = cep_match.group(0).strip()
-        
-        return logradouro, numero, bairro, cep
+        print(f"Quantidade de estabelecimentos encontrados é menor que a quantidade mínima de {qtd_minima_estabelencimentos}.")
 
-    # Cria o DataFrame com os dados coletados
-    df = pd.DataFrame(
-        dados,
-        columns=[
-            "NOME DO ESTABELECIMENTO",
-            "MED.AVALIACOES",
-            "QNT.AVALIACOES",
-            "ENDERECO COMPLETO",
-            "TIPO DE ESTABELECIMENTO", 
-            "CONTATO DO ESTABELECIMENTO"
-        ],
-    )
-    # Tratamento de dados - Converte todas as colunas de texto para maiúsculas
-    colunas_para_maiusculas = ["NOME DO ESTABELECIMENTO", "ENDERECO COMPLETO", "TIPO DE ESTABELECIMENTO"]
-    df[colunas_para_maiusculas] = df[colunas_para_maiusculas].fillna("").apply(lambda x: x.str.upper())
-    # Remover as duplicatas existentes no Data Frame 
-    df = df.drop_duplicates()
+    # ==================== TRATAMEMTO DE DADODS ====================
+
+    df = create_data_frame(dados)
+    df = dados_format(df)
     
     # Aplicar a função em cada linha do DataFrame
     df[["LOGRADOURO", "NUMERO", "BAIRRO", "CEP"]] = df["ENDERECO COMPLETO"].apply(
         lambda x: pd.Series(extrair_endereco(x)))
-    
-    # Salvar o DataFrame em um arquivo .xlsx e .csv
-    """df.to_excel(
-        f"C:\\Users\\gesbarreto\Downloads\\SmartSniffer\\src\\resultados\\XLSX\\estabelecimentos_{pesquisa}.xlsx",
-        index=False,
-    )"""
-    
-    df.to_csv(
-        f"C:\\Users\\gesbarreto\\Downloads\\SmartSniffer\\src\\resultados\\CSV\\estabelecimentos_{pesquisa}.csv",
-        index=False
-    )
+        
+    # Dados Salvos
+    save_data(df, pesquisa)
 
-    print("Dados salvos com sucesso em CSV e XLSX!")
 except Exception as e:
     print(f"Erro ao coletar dados: {str(e)}")
 
