@@ -23,9 +23,15 @@ def dados_format(dataFrame):
     colunas_para_maiusculas = ["NOME DO ESTABELECIMENTO", "ENDERECO COMPLETO", "TIPO DE ESTABELECIMENTO"]
     dataFrame[colunas_para_maiusculas] = dataFrame[colunas_para_maiusculas].fillna("").apply(lambda x: x.str.upper())
     
+    # Formata o dados e normaliza para retirar as inconscistencias
+    palavras_irregulares = {"RUA":"R", "R.": "R", "AVENIDA": "AV", "AV.":"AV"}
+    for chave, valor in palavras_irregulares.items():
+        dataFrame["ENDERECO COMPLETO"] = dataFrame["ENDERECO COMPLETO"].str.replace(chave, valor)
+        
     # Remover as duplicatas existentes no Data Frame 
     dataFrameTrasformado = dataFrame.drop_duplicates()
     return dataFrameTrasformado
+
 
 # Função para extrair partes do endereço
 def extrair_endereco(endereco):
@@ -78,6 +84,7 @@ def save_data(dataFrame, nome_arquivo):
 
     dataFrame.to_csv(
         f"C:\\Users\\gesbarreto\\Downloads\\SmartSniffer\\src\\resultados\\CSV\\estabelecimentos_{nome_arquivo}.csv",
+        sep=";",
         index=False
     )
     
