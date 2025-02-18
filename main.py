@@ -227,6 +227,7 @@ try:
     df = create_data_frame(dados)
     df = dados_format(df)
     
+    
     # Aplicar a função em cada linha do DataFrame
     df[["LOGRADOURO", "NUMERO", "BAIRRO", "CEP"]] = df["ENDERECO COMPLETO"].apply(
         lambda x: pd.Series(extrair_endereco(x)))

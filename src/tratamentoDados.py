@@ -25,6 +25,7 @@ def dados_format(dataFrame):
     
     # Formata o dados e normaliza para retirar as inconscistencias
     palavras_irregulares = {"RUA":"R", "R.": "R", "AVENIDA": "AV", "AV.":"AV"}
+    
     for chave, valor in palavras_irregulares.items():
         dataFrame["ENDERECO COMPLETO"] = dataFrame["ENDERECO COMPLETO"].str.replace(chave, valor)
         
@@ -78,7 +79,7 @@ def save_data(dataFrame, nome_arquivo):
     
     # Salvar o DataFrame em um arquivo .xlsx e .csv
     dataFrame.to_excel(
-        f"C:\\Users\\gesbarreto\Downloads\\SmartSniffer\\src\\resultados\\XLSX\\estabelecimentos_{nome_arquivo}.xlsx",
+        f"C:\\Users\\gesbarreto\\Downloads\\SmartSniffer\\src\\resultados\\XLSX\\estabelecimentos_{nome_arquivo}.xlsx",
         index=False,
     )
 
